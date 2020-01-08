@@ -122,7 +122,7 @@ namespace StorageSystem.Controllers
             conn.Open();
             string query = "DELETE FROM tb_barang WHERE id_barang='" + id_barang + "'";
             MySqlCommand cmd = new MySqlCommand(query, conn);
-            var res = cmd.ExecuteNonQuery();
+            cmd.ExecuteNonQuery();
             return Json(true);
         }
     }
