@@ -7,34 +7,6 @@
 
 <div class="row">
     <div class="col-md-12">
-        @*<table id="tblBarang" class="table table-bordered table-striped">
-                <thead>
-                    <tr>
-
-                    </tr>
-                </thead>
-                <tbody>
-                    @for(var i = 0; i< list_brg.Count(); i++)
-                    {
-                        <tr>
-                            <td>@(i+1)</td>
-                            <td>@list_brg[i].Id_barang</td>
-                            <td>@list_brg[i].Nama_brg</td>
-                            <td>@list_brg[i].Merek</td>
-                            <td>@list_brg[i].Satuan</td>
-                            <td>@list_brg[i].Stok_brg</td>
-                            <td>@list_brg[i].Harga.ToString("Rp#,0")</td>
-                            <td>@list_brg[i].Jml_hrg.ToString("Rp#,0")</td>
-                            <td>
-                                <small>
-                                    <button class="btn btn-primary btn-sm" onclick="EditItem(@list_brg[i].Id_barang)">Edit</button>
-                                    <button class="btn btn-danger btn-sm" onclick="DeleteItem(@list_brg[i].Id_barang)">Delete</button>
-                                </small>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>*@
         <table id="tblBarang" class="table table-striped table-bordered">
             <thead>
                 <tr>
@@ -64,8 +36,10 @@
             <div class="modal-header">
                 <h4 class="modal-title" id="ModalTitle">Edit barang</h4>
             </div>
+            <!-- Buat Form dalam body untuk edit -->
             <div class="modal-body">
                 <div class="row">
+                    <input type="hidden" id="hdnIdBarang" />
                     <div class="col-sm-6 form-group">
                         <label>Nama Barang:</label>
                         <input type="text" id="tbNamaBarang" class="form-control" />
@@ -97,6 +71,7 @@
                 </div>
             </div>
             <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="UpdateData()">Save</button>
                 <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
             </div>
         </div>
@@ -124,7 +99,7 @@
         recPerPage = 10,
         page = 1,
         totalPages = 0;
-
+    // Mengambil data barang dari database
     $.ajax({
         async: true,
         method: 'post',
@@ -138,7 +113,7 @@
             apply_pagination();
         }
     });
-
+    // Generate tabel berdasarkan jumlah data yang akan ditampilkan per halaman
     function generate_table() {
         var tbl = $('#tblBarangBody');
         tbl.html('');
@@ -152,14 +127,14 @@
                 '<td>' + currType(displayRecords[i].Harga) + '</td>' +
                 '<td>' + currType(displayRecords[i].Jml_hrg) + '</td>' +
                 '<td><small>' +
-                '<button class="btn btn-primary btn-sm" onclick="EditItem(' + displayRecords[i].Id_barang + ')">Edit</button>&nbsp;' +
+                '<button class="btn btn-primary btn-sm" onclick="getEditItem(' + displayRecords[i].Id_barang + ')">Edit</button>&nbsp;' +
                 '<button class="btn btn-danger btn-sm" onclick="DeleteItem(' + displayRecords[i].Id_barang + ')">Delete</button>' +
                 '</small></td>' +
                 '</tr>';
             tbl.append(row);
         }
     }
-
+    // Melakukan pagination
     function apply_pagination() {
         $pagination.twbsPagination({
             totalPages: totalPages,
@@ -174,7 +149,8 @@
     }
     // End Pagination
 
-    function EditItem(id) {
+    // Fungsi untuk mengambil data dan memasangkan data di modal edit
+    function getEditItem(id) {
         var param = { id_barang: id };
         param = JSON.stringify(param);
         $.ajax({
@@ -186,6 +162,7 @@
             url: '@Url.Action("EditData")',
             success: function (res) {
                 $('#editModal').modal('show');
+                $('#hdnIdBarang').val(res.Id_barang);
                 $('#tbNamaBarang').val(res.Nama_brg);
                 $('#tbMerek').val(res.Merek);
                 $('#tbSatuan').val(res.Satuan);
@@ -199,6 +176,40 @@
         })
     }
 
+    function UpdateData() {
+        var id_brg = $('#hdnIdBarang').val();
+        var nama_brg = $('#tbNamaBarang').val();
+        var merek = $('#tbMerek').val();
+        var satuan = $('#tbSatuan').val();
+        var stok = $('#tbStokBarang').val();
+        var harga = $('#tbHarga').val();
+        var jumlah_harga = $('#tbJmlHarga').val();
+        var param = { id_barang: id_brg, nama_barang: nama_brg, merek: merek, satuan: satuan, stok: stok, harga: harga, jml_harga: jumlah_harga };
+        param = JSON.stringify(param);
+        $.ajax({
+            async: true,
+            dataType: 'json',
+            contentType: 'application/json',
+            method: 'post',
+            data: param,
+            url: '@Url.Action("UpdateData")',
+            success: function (res) {
+                if (res > 0) {
+                    swal('Sukses!', 'Data berhasil diupdate', 'success');
+                    setTimeout(function () {
+                        window.location.href = '@Url.Action("Index")';
+                    }, 2000);
+                } else {
+                    swal('Error!', 'Data gagal diupdate', 'error');
+                }
+            },
+            error: function () {
+                swal('Error!', 'Gagal terhubung dengan DB. Cek Controller.', 'error');
+            }
+        }) 
+    }
+
+    // Fungsi untuk menghapus data
     function DeleteItem(id) {
         var param = { id_barang: id };
         param = JSON.stringify(param);

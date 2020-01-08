@@ -101,6 +101,20 @@ namespace StorageSystem.Controllers
         }
 
         [HttpPost]
+        public ActionResult UpdateData(string id_barang, string nama_barang, string merek, string satuan, string stok, string harga, string jml_harga)
+        {
+            var connString = ConfigurationManager.ConnectionStrings["mysqlConn"].ConnectionString;
+            MySqlConnection conn = new MySqlConnection(connString);
+            conn.Open();
+            string query = "UPDATE tb_barang" +
+                "SET nama_brg='" + nama_barang + "', merek='" + merek + "', satuan='" + satuan + "', stok_brg='" + stok + "', harga='" + harga + "', jml_hrg='" + jml_harga + "'" +
+                "WHERE id_barang='" + id_barang + "'";
+            MySqlCommand cmd = new MySqlCommand(query, conn);
+            var res = cmd.ExecuteNonQuery();
+            return Json(res, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
         public ActionResult DeleteData(string id_barang)
         {
             var connString = ConfigurationManager.ConnectionStrings["mysqlConn"].ConnectionString;
