@@ -176,6 +176,28 @@
         })
     }
 
+    $('#tbHarga').on("keydown keyup keypress change", function () {
+        var harga = $('#tbHarga').val();
+        var stok = $('#tbStokBarang').val();
+        if (harga != '' && harga != null && stok != '' && stok != null) {
+            var total = parseInt(harga) * parseInt(stok);
+            $('#tbJmlHarga').val(total);
+        } else {
+            $('#tbJmlHarga').val('');
+        }
+    });
+
+    $('#tbStokBarang').on("keydown keyup keypress change", function () {
+        var harga = $('#tbHarga').val();
+        var stok = $('#tbStokBarang').val();
+        if (harga != '' && harga != null && stok != '' && stok != null) {
+            var total = parseInt(harga) * parseInt(stok);
+            $('#tbJmlHarga').val(total);
+        } else {
+            $('#tbJmlHarga').val('');
+        }
+    });
+
     function UpdateData() {
         var id_brg = $('#hdnIdBarang').val();
         var nama_brg = $('#tbNamaBarang').val();
