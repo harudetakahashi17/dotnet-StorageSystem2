@@ -1,0 +1,100 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="jumbotron">
+    <h3>Tambah Data</h3>
+</div>
+
+<div class="row">
+    <div class="col-md-4 form-group">
+        <label>Nama Barang:</label>
+        <input type="text" id="tbNamaBarang" class="form-control" placeholder="ex. Kabel UTP RJ45 Cat 6" />
+    </div>
+    <div class="col-md-4 form-group">
+        <label>Merek Barang:</label>
+        <input type="text" id="tbMerek" class="form-control" placeholder="ex. Samsung, Apple" />
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4 form-group">
+        <label>Satuan:</label>
+        <input type="text" id="tbSatuan" class="form-control" placeholder="ex. Meter, Roll" />
+    </div>
+    <div class="col-md-4 form-group">
+        <label>Stok Barang:</label>
+        <input type="number" id="tbStokBarang" class="form-control" />
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4 form-group">
+        <label>Harga/unit:</label>
+        <input type="number" id="tbHarga" class="form-control" />
+    </div>
+    <div class="col-md-4 form-group">
+        <label>Jumlah Harga:</label>
+        <input type="text" id="tbJmlHarga" class="form-control" readonly />
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 form-group">
+        <button type="button" class="btn btn-primary" onclick="Tambah()">Submit</button>
+    </div>
+</div>
+
+<script>
+    $('#tbHarga').on("keydown keyup keypress", function () {
+        var harga = $('#tbHarga').val();
+        var stok = $('#tbStokBarang').val();
+        if (harga != '' && harga != null && stok != '' && stok != null) {
+            var total = parseInt(harga) * parseInt(stok);
+            $('#tbJmlHarga').val(total);
+        } else {
+            $('#tbJmlHarga').val('');
+        }
+    });
+
+    $('#tbStokBarang').on("keydown keyup keypress", function () {
+        var harga = $('#tbHarga').val();
+        var stok = $('#tbStokBarang').val();
+        if (harga != '' && harga != null && stok != '' && stok != null) {
+            var total = parseInt(harga) * parseInt(stok);
+            $('#tbJmlHarga').val(total);
+        } else {
+            $('#tbJmlHarga').val('');
+        }
+    });
+
+    function Tambah() {
+        var nama_brg = $('#tbNamaBarang').val();
+        var merek = $('#tbMerek').val();
+        var satuan = $('#tbSatuan').val();
+        var stok = $('#tbStokBarang').val();
+        var harga = $('#tbHarga').val();
+        var jumlah_harga = $('#tbJmlHarga').val();
+        var param = { nama_barang: nama_brg, merek: merek, satuan: satuan, stok: stok, harga: harga, jml_harga: jumlah_harga };
+        param = JSON.stringify(param);
+        $.ajax({
+            async: true,
+            dataType: 'json',
+            contentType: 'application/json',
+            method: 'post',
+            data: param,
+            url: '@Url.Action("InputData")',
+            success: function (res) {
+                if (res > 0) {
+                    swal('Sukses!', 'Data berhasil ditambahkan', 'success');
+                    setTimeout(function () {
+                        window.location.href = '@Url.Action("Index")';
+                    }, 2000);
+                } else {
+                    swal('Error!', 'Data gagal ditambahkan', 'error');
+                }
+            },
+            error: function () {
+                swal('Error!', 'Gagal terhubung dengan DB. Cek Controller.', 'error');
+            }
+        })
+    }
+</script>

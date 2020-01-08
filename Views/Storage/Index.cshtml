@@ -1,0 +1,232 @@
+﻿@{
+    var list_brg = ViewBag.listBarang as List<StorageSystem.Models.Barang>;
+}
+<div class="jumbotron">
+    <h3>Daftar Barang</h3>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        @*<table id="tblBarang" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    @for(var i = 0; i< list_brg.Count(); i++)
+                    {
+                        <tr>
+                            <td>@(i+1)</td>
+                            <td>@list_brg[i].Id_barang</td>
+                            <td>@list_brg[i].Nama_brg</td>
+                            <td>@list_brg[i].Merek</td>
+                            <td>@list_brg[i].Satuan</td>
+                            <td>@list_brg[i].Stok_brg</td>
+                            <td>@list_brg[i].Harga.ToString("Rp#,0")</td>
+                            <td>@list_brg[i].Jml_hrg.ToString("Rp#,0")</td>
+                            <td>
+                                <small>
+                                    <button class="btn btn-primary btn-sm" onclick="EditItem(@list_brg[i].Id_barang)">Edit</button>
+                                    <button class="btn btn-danger btn-sm" onclick="DeleteItem(@list_brg[i].Id_barang)">Delete</button>
+                                </small>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>*@
+        <table id="tblBarang" class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>Nama Barang</th>
+                    <th>Brand</th>
+                    <th>Satuan</th>
+                    <th>Stock Barang</th>
+                    <th>Harga/unit</th>
+                    <th>Jumlah Harga</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="tblBarangBody"></tbody>
+        </table>
+        <div id="pager">
+            <ul id="pagination" class="pagination-sm"></ul>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Edit Section -->
+<div id="editModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="ModalTitle">Edit barang</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-6 form-group">
+                        <label>Nama Barang:</label>
+                        <input type="text" id="tbNamaBarang" class="form-control" />
+                    </div>
+                    <div class="col-sm-6 form-group">
+                        <label>Merek Barang:</label>
+                        <input type="text" id="tbMerek" class="form-control" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6 form-group">
+                        <label>Satuan:</label>
+                        <input type="text" id="tbSatuan" class="form-control" />
+                    </div>
+                    <div class="col-sm-6 form-group">
+                        <label>Stok Barang:</label>
+                        <input type="number" id="tbStokBarang" class="form-control" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6 form-group">
+                        <label>Harga/unit:</label>
+                        <input type="number" id="tbHarga" class="form-control" />
+                    </div>
+                    <div class="col-sm-6 form-group">
+                        <label>Jumlah Harga:</label>
+                        <input type="number" id="tbJmlHarga" class="form-control" readonly />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End of Modal Edit Section-->
+
+<script>
+    // Currency Format
+    function currType(val) {
+        var monetary_value = val;
+        var i = new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR'
+        }).format(monetary_value);
+        return i;
+    }
+    // End of Currency
+
+    // Start Pagination
+    var $pagination = $('#pagination'),
+        totalRec = 0,
+        records = [],
+        displayRecords = [],
+        recPerPage = 10,
+        page = 1,
+        totalPages = 0;
+
+    $.ajax({
+        async: true,
+        method: 'post',
+        dataType: 'json',
+        url: '@Url.Action("GetData")',
+        success: function (data) {
+            records = data;
+            console.log(records);
+            totalRec = records.length;
+            totalPages = Math.ceil(totalRec / recPerPage);
+            apply_pagination();
+        }
+    });
+
+    function generate_table() {
+        var tbl = $('#tblBarangBody');
+        tbl.html('');
+        for (var i = 0; i < displayRecords.length; i++) {
+            var row = '<tr>' +
+                '<td>' + (records.findIndex(x => x.Nama_brg === displayRecords[i].Nama_brg) + 1) + '</td>' +
+                '<td>' + displayRecords[i].Nama_brg + '</td>' +
+                '<td>' + displayRecords[i].Merek + '</td>' +
+                '<td>' + displayRecords[i].Satuan + '</td>' +
+                '<td>' + displayRecords[i].Stok_brg + '</td>' +
+                '<td>' + currType(displayRecords[i].Harga) + '</td>' +
+                '<td>' + currType(displayRecords[i].Jml_hrg) + '</td>' +
+                '<td><small>' +
+                '<button class="btn btn-primary btn-sm" onclick="EditItem(' + displayRecords[i].Id_barang + ')">Edit</button>&nbsp;' +
+                '<button class="btn btn-danger btn-sm" onclick="DeleteItem(' + displayRecords[i].Id_barang + ')">Delete</button>' +
+                '</small></td>' +
+                '</tr>';
+            tbl.append(row);
+        }
+    }
+
+    function apply_pagination() {
+        $pagination.twbsPagination({
+            totalPages: totalPages,
+            visiblePages: 6,
+            onPageClick: function (event, page) {
+                displayRecordsIndex = Math.max(page - 1, 0) * recPerPage;
+                endRec = (displayRecordsIndex) + recPerPage;
+                displayRecords = records.slice(displayRecordsIndex, endRec);
+                generate_table();
+            }
+        });
+    }
+    // End Pagination
+
+    function EditItem(id) {
+        var param = { id_barang: id };
+        param = JSON.stringify(param);
+        $.ajax({
+            async: true,
+            dataType: 'json',
+            contentType: 'application/json',
+            method: 'post',
+            data: param,
+            url: '@Url.Action("EditData")',
+            success: function (res) {
+                $('#editModal').modal('show');
+                $('#tbNamaBarang').val(res.Nama_brg);
+                $('#tbMerek').val(res.Merek);
+                $('#tbSatuan').val(res.Satuan);
+                $('#tbStokBarang').val(res.Stok_brg);
+                $('#tbHarga').val(res.Harga);
+                $('#tbJmlHarga').val(res.Jml_hrg);
+            },
+            error: function () {
+                swal('Error!', 'Error Connection DB', 'error');
+            }
+        })
+    }
+
+    function DeleteItem(id) {
+        var param = { id_barang: id };
+        param = JSON.stringify(param);
+        swal({
+          title: "Anda yakin?",
+          text: "Data akan hilang selamanya",
+          type: "warning",
+          showCancelButton: true,
+          confirmButtonClass: "btn-danger",
+          confirmButtonText: "Ya!",
+          closeOnConfirm: false
+        },
+        function(){
+            $.ajax({
+                async: true,
+                dataType: 'json',
+                contentType: 'application/json',
+                method: 'post',
+                data: param,
+                url: '@Url.Action("DeleteData")',
+                success: function (res) {
+                    swal('Success', 'File berhasil dihapus', 'success');
+                    window.location.reload();
+                },
+                error: function () {
+                    swal('Error!', 'Error Connection DB', 'error');
+                }
+            })
+        });
+    }
+</script>
