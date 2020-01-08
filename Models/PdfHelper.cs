@@ -14,7 +14,7 @@ namespace StorageSystem.Models
         public string ExportToPdf(string fileName, DataTable dataTable)
         {
             var pdfDocument = new Document();
-            var pdfFile = string.Format("{0}{1}{2}", Path.GetTempPath(), fileName, DateTime.Now.ToString("ddMMyyyy"));
+            var pdfFile = string.Format("{0}{1}{2}.pdf", Path.GetTempPath(), fileName, DateTime.Now.ToString("ddMMyyyyhhmmss"));
             if (File.Exists(pdfFile))
             {
                 File.Delete(pdfFile);
@@ -22,20 +22,22 @@ namespace StorageSystem.Models
             var pdfWriter = PdfWriter.GetInstance(pdfDocument, new FileStream(pdfFile, FileMode.Create));
             pdfDocument.Open();
             var pdfPTable = new PdfPTable(dataTable.Columns.Count);
-            pdfPTable.WidthPercentage = 100;
+            pdfPTable.WidthPercentage = 100f;
             for(int i = 0; i < dataTable.Columns.Count; i++)
             {
-                var pdfPCell = new PdfPCell(new Phrase(dataTable.Columns[i].ColumnName));
+                var pdfPCell = new PdfPCell(new Phrase(dataTable.Columns[i].ColumnName, new Font(Font.FontFamily.HELVETICA, 8, 1)));
+                pdfPCell.Padding = 2;
                 pdfPCell.HorizontalAlignment = PdfPCell.ALIGN_CENTER;
                 pdfPCell.VerticalAlignment = PdfPCell.ALIGN_CENTER;
-                pdfPCell.BackgroundColor = new BaseColor(51, 102, 102);
+                pdfPCell.BackgroundColor = new BaseColor(200, 200, 200);
                 pdfPTable.AddCell(pdfPCell);
             }
             for (int row = 0; row < dataTable.Rows.Count; row++)
             {
                 for (int column = 0; column < dataTable.Columns.Count; column++)
                 {
-                    var cell = new PdfPCell(new Phrase(dataTable.Rows[row][column].ToString()));
+                    var cell = new PdfPCell(new Phrase(dataTable.Rows[row][column].ToString(), new Font(Font.FontFamily.HELVETICA, 8, 1)));
+                    cell.Padding = 5;
                     cell.HorizontalAlignment = PdfPCell.ALIGN_CENTER; ;
                     cell.VerticalAlignment = PdfPCell.ALIGN_CENTER;
                     pdfPTable.AddCell(cell);

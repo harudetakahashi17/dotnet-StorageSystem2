@@ -61,6 +61,16 @@
 
 <script>
     function ExportPDF() {
-        swal('Under Construction', '', 'warning');
+        $.ajax({
+            async: true,
+            method: 'post',
+            url: '@Url.Action("ExportPDF", "Storage")',
+            success: function () {
+                // void
+            },
+            error: function (e) {
+                swal('Error', e.responseText, 'error');
+            }
+        })
     }
 </script>
