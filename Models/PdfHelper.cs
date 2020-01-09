@@ -11,9 +11,10 @@ namespace StorageSystem.Models
 {
     public class PdfHelper
     {
+        private static readonly Font font = new Font(Font.FontFamily.HELVETICA, 8, 1);
         public string ExportToPdf(string fileName, DataTable dataTable)
         {
-            var pdfDocument = new Document(PageSize.A4,25,25,25,25);
+            var pdfDocument = new Document(PageSize.A4, 25f, 25f, 25f, 25f);
             var pdfFile = string.Format("{0}{1}{2}.pdf", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), fileName, DateTime.Now.ToString("ddMMyyyyhhmmss"));
             if (File.Exists(pdfFile))
             {
@@ -21,8 +22,19 @@ namespace StorageSystem.Models
             }
             var pdfWriter = PdfWriter.GetInstance(pdfDocument, new FileStream(pdfFile, FileMode.Create));
             pdfDocument.Open();
+
+            // Header Part as Table
+            var headerDoc = new PdfPTable(1);
+            headerDoc.WidthPercentage = 100;
+            var headerDocCell = new PdfPCell(new Phrase("Data Barang", new Font(Font.FontFamily.HELVETICA, 16, 1)));
+            headerDocCell.HorizontalAlignment = PdfPCell.ALIGN_CENTER;
+            headerDocCell.VerticalAlignment = PdfPCell.ALIGN_CENTER;
+            headerDocCell.Border = 0;
+            headerDoc.AddCell(headerDocCell);
+
             var pdfPTable = new PdfPTable(dataTable.Columns.Count);
-            pdfPTable.WidthPercentage = 100f;
+            float[] colWidth = new[] { 2.5f, 2.5f, 8f, 6f, 5f, 3f, 8f, 8f };
+            pdfPTable.SetWidths(colWidth);
             for(int i = 0; i < dataTable.Columns.Count; i++)
             {
                 var pdfPCell = new PdfPCell(new Phrase(dataTable.Columns[i].ColumnName, new Font(Font.FontFamily.HELVETICA, 8, 1)));
@@ -44,12 +56,11 @@ namespace StorageSystem.Models
                 }
             }
 
-            var cb = pdfWriter.DirectContent;
-            cb.ShowTextAligned(PdfContentByte.ALIGN_CENTER, "Data Barang", 50f, 5f, 0);
-            
-            
-            
+            pdfDocument.Add(headerDoc);
+            pdfDocument.Add(new Paragraph("\n"));
+            pdfDocument.Add(new Paragraph("\n"));
             pdfDocument.Add(pdfPTable);
+            pdfDocument.Add(new Phrase("Created on: " + DateTime.Now.ToString("dd-MM-yyyy hh:mm:ss"), font));
             pdfDocument.Close();
             return pdfFile;
         }

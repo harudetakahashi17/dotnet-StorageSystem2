@@ -148,7 +148,7 @@ namespace StorageSystem.Controllers
             {
                 DataTable dtBarang = new DataTable();
                 dtBarang.Columns.Add(new DataColumn("No"));
-                dtBarang.Columns.Add(new DataColumn("ID Barang"));
+                dtBarang.Columns.Add(new DataColumn("ID"));
                 dtBarang.Columns.Add(new DataColumn("Nama Barang"));
                 dtBarang.Columns.Add(new DataColumn("Merek"));
                 dtBarang.Columns.Add(new DataColumn("Satuan"));
@@ -159,7 +159,7 @@ namespace StorageSystem.Controllers
                 {
                     DataRow drBarang = dtBarang.NewRow();
                     drBarang["No"] = i+1;
-                    drBarang["ID Barang"] = list_brg[i].Id_barang;
+                    drBarang["ID"] = list_brg[i].Id_barang;
                     drBarang["Nama Barang"] = list_brg[i].Nama_brg;
                     drBarang["Merek"] = list_brg[i].Merek;
                     drBarang["Satuan"] = list_brg[i].Satuan;
