@@ -13,8 +13,8 @@ namespace StorageSystem.Models
     {
         public string ExportToPdf(string fileName, DataTable dataTable)
         {
-            var pdfDocument = new Document();
-            var pdfFile = string.Format("{0}{1}{2}.pdf", Path.GetTempPath(), fileName, DateTime.Now.ToString("ddMMyyyyhhmmss"));
+            var pdfDocument = new Document(PageSize.A4,25,25,25,25);
+            var pdfFile = string.Format("{0}{1}{2}.pdf", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), fileName, DateTime.Now.ToString("ddMMyyyyhhmmss"));
             if (File.Exists(pdfFile))
             {
                 File.Delete(pdfFile);
@@ -43,6 +43,12 @@ namespace StorageSystem.Models
                     pdfPTable.AddCell(cell);
                 }
             }
+
+            var cb = pdfWriter.DirectContent;
+            cb.ShowTextAligned(PdfContentByte.ALIGN_CENTER, "Data Barang", 50f, 5f, 0);
+            
+            
+            
             pdfDocument.Add(pdfPTable);
             pdfDocument.Close();
             return pdfFile;

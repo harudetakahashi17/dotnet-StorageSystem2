@@ -169,7 +169,7 @@ namespace StorageSystem.Controllers
                     dtBarang.Rows.Add(drBarang);
                 }
                 PdfHelper pdfHelper = new PdfHelper();
-                pdf = pdfHelper.ExportToPdf("DaftarBarang-", dtBarang);
+                pdf = pdfHelper.ExportToPdf("\\DaftarBarang-", dtBarang);
             }
             var file = new FileInfo(pdf);
             conn.Close();
